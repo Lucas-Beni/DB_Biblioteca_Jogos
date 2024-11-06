@@ -190,7 +190,7 @@ EXEC SP_Add_Jogo
 	@ID_Empresa = 2,
 	@ID_Modelo = 1,
 	@Preço_Jogo = 300.00
-
+--Cria um Procedure que facilita no processo de adicionar algum jogo na tabela
 
 SELECT * FROM Jogo
 SELECT * FROM Tipo
