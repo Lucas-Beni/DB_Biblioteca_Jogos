@@ -8,12 +8,12 @@ CREATE TABLE Jogo(
 	ID_Tipo INT NOT NULL,
 	ID_Empresa INT NOT NULL,
 	ID_Modelo INT NOT NULL,
-	PreÁo_Jogo FLOAT NOT NULL,
+	Pre√ßo_Jogo FLOAT NOT NULL
 )
 CREATE TABLE Tipo(
 	ID_Tipo INT PRIMARY KEY NOT NULL,
 	Nome_Tipo VARCHAR(30) NOT NULL,
-	ClassificaÁ„o_Indicativa VARCHAR(10) NOT NULL
+	Classifica√ß√£o_Indicativa VARCHAR(10) NOT NULL
 )
 
 CREATE TABLE Empresa(
@@ -26,11 +26,11 @@ CREATE TABLE Modelo(
 	Tipo_Modelo VARCHAR(30) NOT NULL
 )
 
-INSERT INTO Tipo(ID_Tipo, Nome_Tipo, ClassificaÁ„o_Indicativa) VALUES
+INSERT INTO Tipo(ID_Tipo, Nome_Tipo, Classifica√ß√£o_Indicativa) VALUES
 (1, 'Mundo Aberto', 'Livre'),
 (2, 'FPS', '14'),
 (3, 'Corrida', 'Livre'),
-(4, 'Mundo Aberto / ViolÍncia', '18')
+(4, 'Mundo Aberto / Viol√™ncia', '18')
 
 INSERT INTO Empresa(ID_Empresa, Nome_Empresa) VALUES
 (1, 'Sony'),
@@ -41,10 +41,10 @@ INSERT INTO Empresa(ID_Empresa, Nome_Empresa) VALUES
 (6, 'Nintendo')
 
 INSERT INTO Modelo(ID_Modelo, Tipo_Modelo) VALUES
-(1, 'MÌdia FÌsica'),
-(2, 'MÌdia Digital')
+(1, 'M√≠dia F√≠sica'),
+(2, 'M√≠dia Digital')
 
-INSERT INTO Jogo (ID_Jogo, Nome_Jogo, ID_Tipo, ID_Empresa, ID_Modelo, PreÁo_Jogo) VALUES
+INSERT INTO Jogo (ID_Jogo, Nome_Jogo, ID_Tipo, ID_Empresa, ID_Modelo, Pre√ßo_Jogo) VALUES
 (1, 'God Of War 3', 4, 1, 2, 200.00),
 (2, 'Call Of Duty Black Ops 6', 2, 2, 1, 300.00),
 (3, 'Mario Kart', 3, 6, 2, 150.00),
@@ -81,18 +81,18 @@ SELECT * FROM V_Empresas
 --Cria uma View que mostra todos os jogos e suas respectivas empresas
 
 --CTE's
-WITH PreÁo_Total_Jogos([PreÁo Total])
+WITH Pre√ßo_Total_Jogos([Pre√ßo Total])
 AS
 (
 SELECT
-	SUM(PreÁo_Jogo)
+	SUM(Pre√ßo_Jogo)
 FROM
 	Jogo
 WHERE ID_Modelo = 2
 )
 
-SELECT * FROM PreÁo_Total_Jogos
---Cria um CTE que faz a soma do preÁo de todos os jogos que s„o de mÌdia digital
+SELECT * FROM Pre√ßo_Total_Jogos
+--Cria um CTE que faz a soma do pre√ßo de todos os jogos que s√£o de m√≠dia digital
 
 --Functions
 CREATE FUNCTION fn_JogosMundoAberto()
@@ -101,17 +101,17 @@ AS
 RETURN(
 	SELECT
 		Nome_Jogo AS Nome,
-		PreÁo_Jogo AS PreÁo
+		Pre√ßo_Jogo AS Pre√ßo
 	FROM
 		Jogo
 	WHERE ID_Tipo = 1 OR ID_TIPO = 4
 )
 
 SELECT * FROM fn_JogosMundoAberto()
---Cria uma funÁ„o que mostra os nomes e os preÁos de jogos que sejam mundo aberto
+--Cria uma fun√ß√£o que mostra os nomes e os pre√ßos de jogos que sejam mundo aberto
 
 --TRIGGERS
-CREATE OR ALTER TRIGGER tg_mostra_inserÁ„o
+CREATE OR ALTER TRIGGER tg_mostra_inser√ß√£o
 ON Jogo
 	AFTER INSERT
 AS
@@ -122,34 +122,74 @@ BEGIN
 	PRINT CONCAT('O jogo ', @jogo, ' foi adicionado')
 END
 
-INSERT INTO Jogo(ID_Jogo, Nome_Jogo, ID_Tipo, ID_Empresa, ID_Modelo, PreÁo_Jogo) VALUES
+INSERT INTO Jogo(ID_Jogo, Nome_Jogo, ID_Tipo, ID_Empresa, ID_Modelo, Pre√ßo_Jogo) VALUES
 (7, 'Hollow Knight', 1, 2, 2, 60.00)
---Cria um trigger em que apÛs adicionar um jogo no banco de dados mostra uma mensagem
+--Cria um trigger em que ap√≥s adicionar um jogo no banco de dados mostra uma mensagem
 
 --LOOPS
 DECLARE @contador INT = 0
-WHILE EXISTS (SELECT Nome_Jogo FROM Jogo WHERE PreÁo_Jogo > 150.00)
+WHILE EXISTS (SELECT Nome_Jogo FROM Jogo WHERE Pre√ßo_Jogo > 150.00)
 BEGIN
 	DELETE 
 	FROM Jogo
-	WHERE PreÁo_Jogo > 150.00
+	WHERE Pre√ßo_Jogo > 150.00
 	PRINT 'Jogos Deletados'
 	SET @contador = @contador + 1
 END
+SELECT * FROM Jogo
 --Cria um Loop que deleta todos os jogos que custam mais de 150 reais
 
 --WINDOWS FUNCTIONS
 SELECT 
 	DISTINCT Tipo.ID_Tipo,
 	Tipo.Nome_Tipo,
-	SUM(Jogo.PreÁo_Jogo) OVER (PARTITION BY Tipo.ID_Tipo) AS 'Soma PreÁos'
+	SUM(Jogo.Pre√ßo_Jogo) OVER (PARTITION BY Tipo.ID_Tipo) AS 'Soma Pre√ßos'
 FROM
 	Tipo
 INNER JOIN Jogo
 	ON Jogo.ID_Tipo = Tipo.ID_Tipo
---Cria um Windows Function que mostra a soma de preÁos de todos os jogos de cada categoria
+--Cria um Windows Function que mostra a soma de pre√ßos de todos os jogos de cada categoria
 
 --SUBQUERY
+SELECT
+	Nome_Jogo,
+	Nome_Tipo,
+	Jogo.Pre√ßo_Jogo
+FROM
+	Jogo
+INNER JOIN Tipo
+	ON Jogo.ID_Tipo = Tipo.ID_Tipo
+WHERE Tipo.ID_Tipo IN (
+	SELECT
+		ID_Tipo
+	FROM
+		Tipo
+	WHERE
+		Classifica√ß√£o_Indicativa LIKE 'Livre'
+)
+--Cria uma Subquery que mostra os jogos que possuem classifica√ß√£o indicativa livre
+
+--PROCEDURES
+CREATE PROCEDURE SP_Add_Jogo
+	@ID_Jogo INT,
+	@Nome_Jogo VARCHAR(30),
+	@ID_Tipo INT,
+	@ID_Empresa INT,
+	@ID_Modelo INT,
+	@Pre√ßo_Jogo FLOAT
+AS
+	INSERT INTO Jogo (ID_Jogo, Nome_Jogo, ID_Tipo, ID_Empresa, ID_Modelo, Pre√ßo_Jogo) VALUES
+	(@ID_Jogo, @Nome_Jogo, @ID_Tipo, @ID_Empresa, @ID_Modelo, @Pre√ßo_Jogo)
+
+	PRINT CONCAT('O jogo ', @Nome_jogo, ' foi adicionado')
+
+EXEC SP_Add_Jogo
+	@ID_Jogo = 1,
+	@Nome_Jogo = 'Call Of Duty Black Ops 6',
+	@ID_Tipo = 2,
+	@ID_Empresa = 2,
+	@ID_Modelo = 1,
+	@Pre√ßo_Jogo = 300.00
 
 
 SELECT * FROM Jogo
